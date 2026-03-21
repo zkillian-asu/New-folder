@@ -1,0 +1,13 @@
+{
+  "name": "drop-for-change",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mobile-first browser game inspired by charity: water (browser-first, no required build step)",
+  "scripts": {
+    "start": "http-server . -p 5173 -c-1",
+    "check": "echo \"Static browser-first project: open index.html to test\""
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

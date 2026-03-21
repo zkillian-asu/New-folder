@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Desert Sanctuary | charity: water impact game</title>
+    <meta
+      name="description"
+      content="A mobile-friendly charity: water inspired game where you feel the difference between scarcity and abundance."
+    />
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero-card">
+        <p class="eyebrow">charity: water inspired experience</p>
+        <h1>Desert Sanctuary</h1>
+        <p class="subhead">
+          Grow life with limited water, then swipe to discover short-term and long-term water strategies.
+        </p>
+      </section>
+
+      <section class="game-shell">
+        <div class="water-panel" aria-live="polite">
+          <div class="water-top-row">
+            <span class="water-title">Water Gauge</span>
+            <span id="waterLabel" class="water-label">30 / 50</span>
+          </div>
+          <div class="water-track" role="progressbar" aria-valuemin="0" aria-valuenow="30" aria-valuemax="50">
+            <div id="waterFill" class="water-fill"></div>
+          </div>
+        </div>
+
+        <section class="stats" aria-live="polite">
+          <div class="stat-card">
+            <span class="label">Regen / sec</span>
+            <span id="regenValue" class="value">0.1</span>
+          </div>
+          <div class="stat-card">
+            <span class="label">Sources Secured</span>
+            <span id="sourcesValue" class="value">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="label">Plants</span>
+            <span id="plantsValue" class="value">0</span>
+          </div>
+        </section>
+
+        <section id="swipeShell" class="swipe-shell" aria-label="Swipe game panels">
+          <div id="panelsTrack" class="panels-track">
+            <article class="panel garden-panel" aria-label="Garden panel">
+              <div id="garden" class="garden" aria-label="Garden area">
+                <div class="garden-detail dune"></div>
+                <div class="garden-detail stone stone-a"></div>
+                <div class="garden-detail stone stone-b"></div>
+                <div class="garden-detail cactus cactus-a"></div>
+                <div class="garden-detail cactus cactus-b"></div>
+              </div>
+              <p id="gardenHint" class="hint">Click anywhere to plant a seed</p>
+              <div id="waterDroplets" class="droplets" aria-hidden="true">
+                <span class="droplet"></span>
+                <span class="droplet"></span>
+                <span class="droplet"></span>
+                <span class="droplet"></span>
+                <span class="droplet"></span>
+              </div>
+
+              <button id="centralWaterButton" class="central-water-btn" type="button">Hold to Water</button>
+            </article>
+
+            <article class="panel sources-panel" aria-label="Water sources panel">
+              <h2>Water Sources</h2>
+              <p class="panel-copy">Swipe here to manage your two source strategies.</p>
+
+              <div class="source-card short-source">
+                <h3>Short-Term Source</h3>
+                <p>Quick boost now, but it dries up after you leave and return.</p>
+                <p id="shortSourceStatus" class="source-status">Status: Available</p>
+                <button id="shortSourceButton" class="source-action" type="button">Draw Short-Term Water</button>
+              </div>
+
+              <div class="source-card long-source">
+                <h3>Long-Term Source</h3>
+                <p>Collect periodically. Yield grows over time and strengthens your future.</p>
+                <p id="longSourceStatus" class="source-status">Status: Ready</p>
+                <button id="longSourceButton" class="source-action" type="button">Collect Long-Term Water</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <div class="panel-nav" aria-label="Panel selector">
+          <button id="panelDot0" class="panel-dot active" type="button" aria-label="Go to garden panel"></button>
+          <button id="panelDot1" class="panel-dot" type="button" aria-label="Go to water sources panel"></button>
+          <span id="panelLabel" class="panel-label">Garden</span>
+        </div>
+      </section>
+
+      <section class="controls">
+        <button id="restartButton" class="action-btn restart-btn" type="button">Restart Garden</button>
+      </section>
+    </main>
+
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/game.js"></script>
+  </body>
+</html>

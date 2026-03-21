@@ -1,0 +1,568 @@
+:root {
+  --ink: #2a261b;
+  --sky: #9ad0ec;
+  --deep-water: #0077b6;
+  --mid-water: #3a86c7;
+  --low-water: #ce5a3f;
+  --sand-light: #f4dfb4;
+  --sand-dark: #d8bb7a;
+  --card: rgba(255, 248, 235, 0.88);
+  --line: rgba(58, 45, 23, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  color: var(--ink);
+  font-family: "Gill Sans", "Trebuchet MS", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 12% 10%, #fff3d1 0%, #f6ddac 20%, transparent 48%),
+    radial-gradient(circle at 88% 24%, #f0ce84 0%, transparent 38%),
+    linear-gradient(180deg, #e3f4ff 0%, #f4e4b7 42%, #d7b273 100%);
+}
+
+body {
+  padding: 14px 12px 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.app-shell {
+  width: min(520px, 100%);
+  display: grid;
+  gap: 12px;
+}
+
+.hero-card,
+.water-panel,
+.stats,
+.swipe-shell,
+.controls {
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  backdrop-filter: blur(3px);
+}
+
+.game-shell {
+  background: rgba(250, 239, 210, 0.65);
+  border: 2px solid rgba(87, 68, 33, 0.24);
+  border-radius: 30px;
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.hero-card {
+  padding: 12px;
+  animation: rise-in 420ms ease-out;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6e5d36;
+}
+
+h1 {
+  margin: 5px 0 6px;
+  font-size: clamp(1.5rem, 5vw, 2.1rem);
+  line-height: 1.05;
+}
+
+.subhead {
+  margin: 0;
+  font-size: 0.96rem;
+}
+
+.water-panel {
+  padding: 10px;
+}
+
+.water-top-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.water-title {
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.water-label {
+  font-weight: 800;
+}
+
+.water-track {
+  width: 100%;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(42, 38, 27, 0.2);
+  background: rgba(255, 255, 255, 0.65);
+  overflow: hidden;
+}
+
+.water-fill {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #68d6ff 0%, var(--mid-water) 65%, var(--deep-water) 100%);
+  transition: width 150ms linear, filter 180ms ease;
+}
+
+.water-fill.is-low {
+  background: linear-gradient(90deg, #f59f73 0%, #df7345 65%, var(--low-water) 100%);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 9px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(42, 38, 27, 0.12);
+  border-radius: 10px;
+  text-align: center;
+  padding: 7px 4px;
+}
+
+.label {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.64rem;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.value {
+  display: block;
+  margin-top: 3px;
+  font-weight: 800;
+  font-size: 1.06rem;
+}
+
+.swipe-shell {
+  overflow: hidden;
+  border-radius: 120px 120px 28px 28px;
+  border: 2px solid rgba(87, 68, 33, 0.24);
+  background: linear-gradient(180deg, rgba(255, 247, 225, 0.8), rgba(244, 220, 171, 0.7));
+}
+
+.panels-track {
+  display: flex;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 280ms ease;
+}
+
+.panel {
+  width: 50%;
+  padding: 10px;
+  position: relative;
+}
+
+.garden {
+  height: min(66vh, 520px);
+  min-height: 340px;
+  border-radius: 12px;
+  border: 2px solid rgba(86, 68, 33, 0.2);
+  background:
+    radial-gradient(circle at 50% 84%, rgba(61, 143, 152, 0.32) 0%, rgba(61, 143, 152, 0.06) 26%, transparent 52%),
+    radial-gradient(circle at 78% 34%, rgba(255, 255, 255, 0.34) 0%, transparent 38%),
+    linear-gradient(180deg, #f8e6bc 0%, #e4c988 45%, #cfa45f 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.garden-panel {
+  padding-bottom: 74px;
+}
+
+.garden-detail {
+  position: absolute;
+  pointer-events: none;
+}
+
+.dune {
+  width: 92%;
+  height: 40%;
+  left: 4%;
+  bottom: -16%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at top, rgba(201, 154, 84, 0.6), rgba(175, 124, 66, 0.26));
+}
+
+.stone {
+  width: 18px;
+  height: 12px;
+  background: rgba(130, 109, 78, 0.45);
+  border-radius: 999px;
+  bottom: 14%;
+}
+
+.stone-a {
+  left: 20%;
+}
+
+.stone-b {
+  right: 16%;
+}
+
+.cactus {
+  width: 12px;
+  height: 38px;
+  background: linear-gradient(180deg, #80c255 0%, #4f8c31 100%);
+  border-radius: 8px;
+  bottom: 18%;
+}
+
+.cactus::before,
+.cactus::after {
+  content: "";
+  position: absolute;
+  background: inherit;
+  border-radius: 8px;
+}
+
+.cactus::before {
+  width: 8px;
+  height: 20px;
+  left: -6px;
+  top: 11px;
+}
+
+.cactus::after {
+  width: 8px;
+  height: 18px;
+  right: -6px;
+  top: 14px;
+}
+
+.cactus-a {
+  left: 8%;
+}
+
+.cactus-b {
+  right: 8%;
+  transform: scale(0.86);
+}
+
+.garden.is-watering {
+  filter: saturate(1.1) brightness(1.03);
+}
+
+.hint {
+  margin: 8px 2px 2px;
+  text-align: center;
+  font-size: 0.84rem;
+  color: #5f4c2a;
+}
+
+.plant {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  transform-origin: center bottom;
+  transition: transform 420ms ease, width 420ms ease, height 420ms ease;
+}
+
+.plant::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 3px;
+  height: 14px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #78a14f 0%, #446f2d 100%);
+}
+
+.plant::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  border-radius: 50%;
+  background: var(--plant-color);
+  transform: translateX(-50%);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35) inset;
+}
+
+.plant.stage-0 {
+  width: 10px;
+  height: 16px;
+}
+
+.plant.stage-0::after {
+  width: 6px;
+  height: 6px;
+  bottom: 10px;
+}
+
+.plant.stage-1 {
+  width: 16px;
+  height: 24px;
+}
+
+.plant.stage-1::after {
+  width: 10px;
+  height: 10px;
+  bottom: 12px;
+}
+
+.plant.stage-2 {
+  width: 26px;
+  height: 34px;
+}
+
+.plant.stage-2::after {
+  width: 16px;
+  height: 16px;
+  bottom: 15px;
+}
+
+.plant.stage-3 {
+  width: 34px;
+  height: 44px;
+}
+
+.plant.stage-3::after {
+  width: 24px;
+  height: 24px;
+  bottom: 18px;
+}
+
+.droplets {
+  position: absolute;
+  inset: 12px 14px 36px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+
+.droplets.show {
+  opacity: 1;
+}
+
+.droplet {
+  position: absolute;
+  top: -16px;
+  width: 8px;
+  height: 14px;
+  border-radius: 70% 70% 90% 90%;
+  background: linear-gradient(180deg, #b7edff 0%, #2d9ed4 100%);
+  opacity: 0.85;
+  animation: rain 1s linear infinite;
+}
+
+.droplet:nth-child(1) { left: 8%; animation-delay: 0s; }
+.droplet:nth-child(2) { left: 28%; animation-delay: 0.17s; }
+.droplet:nth-child(3) { left: 49%; animation-delay: 0.34s; }
+.droplet:nth-child(4) { left: 70%; animation-delay: 0.49s; }
+.droplet:nth-child(5) { left: 88%; animation-delay: 0.62s; }
+
+.central-water-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.65);
+  background: radial-gradient(circle at 30% 28%, #8fdcff 0%, #2f9cd6 56%, #0b4e80 100%);
+  color: #f8fbff;
+  font-weight: 800;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  text-align: center;
+  box-shadow: 0 10px 20px rgba(11, 78, 128, 0.3);
+}
+
+.central-water-btn:active {
+  transform: translateX(-50%) scale(0.98);
+}
+
+.sources-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.sources-panel h2 {
+  margin: 2px 0 0;
+}
+
+.panel-copy {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #5f4c2a;
+}
+
+.source-card {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(42, 38, 27, 0.12);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.source-card h3 {
+  margin: 0 0 4px;
+}
+
+.source-card p {
+  margin: 0;
+  font-size: 0.86rem;
+}
+
+.source-status {
+  margin-top: 7px !important;
+  font-weight: 700;
+}
+
+.source-action {
+  margin-top: 8px;
+  width: 100%;
+  border: 0;
+  min-height: 40px;
+  border-radius: 999px;
+  font-weight: 800;
+  color: #1f1a10;
+  background: linear-gradient(90deg, #ffe28d 0%, #f6b743 100%);
+}
+
+.source-action:disabled {
+  opacity: 0.55;
+}
+
+.panel-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.panel-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(89, 71, 35, 0.35);
+}
+
+.panel-dot.active {
+  background: #2f9cd6;
+}
+
+.panel-label {
+  margin-left: 8px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.controls {
+  padding: 9px;
+  display: grid;
+  gap: 8px;
+}
+
+.action-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  min-height: 46px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1f1a10;
+  transition: transform 80ms ease, filter 160ms ease;
+  touch-action: manipulation;
+}
+
+.action-btn:active {
+  transform: scale(0.985);
+}
+
+.restart-btn {
+  background: linear-gradient(90deg, #ffd2b8 0%, #f1a66e 100%);
+}
+
+.hide {
+  display: none;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rain {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(320px);
+    opacity: 0;
+  }
+}
+
+@media (min-width: 760px) {
+  body {
+    padding-top: 24px;
+  }
+
+  .app-shell {
+    width: min(720px, 100%);
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "hero hero"
+      "shell shell"
+      "controls controls";
+  }
+
+  .hero-card { grid-area: hero; }
+  .game-shell { grid-area: shell; }
+
+  .game-shell {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "water stats"
+      "swipe swipe"
+      "nav nav";
+  }
+
+  .water-panel { grid-area: water; }
+  .stats { grid-area: stats; }
+  .swipe-shell { grid-area: swipe; }
+  .panel-nav { grid-area: nav; }
+
+  .controls {
+    grid-area: controls;
+    grid-template-columns: 1fr;
+    width: 260px;
+    justify-self: center;
+  }
+}
