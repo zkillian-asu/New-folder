@@ -1,12 +1,77 @@
 (() => {
-  const plantColors = [
-    "#76b947",
-    "#2ec4b6",
-    "#ff9f1c",
-    "#ef476f",
-    "#e9c46a",
-    "#00bbf9",
-    "#8338ec"
+  const growthStageScale = [0.34, 0.58, 0.82, 1];
+
+  const speciesCatalog = [
+    {
+      id: "suncrest",
+      name: "Suncrest Daisy",
+      rarityWeight: 28,
+      growthRateMultiplier: 1.03,
+      stemType: "reed",
+      leafType: "oval",
+      flowerType: "star",
+      seedlingType: "teardrop",
+      primaryColor: "#f2c14e",
+      stemColor: "#4f8b39",
+      leafColor: "#8ccf61",
+      accentColor: "#fff3bd"
+    },
+    {
+      id: "coralfern",
+      name: "Coral Fern",
+      rarityWeight: 24,
+      growthRateMultiplier: 1,
+      stemType: "jointed",
+      leafType: "frond",
+      flowerType: "bell",
+      seedlingType: "round",
+      primaryColor: "#ff7f50",
+      stemColor: "#3d7d4f",
+      leafColor: "#5cb471",
+      accentColor: "#ffe2d3"
+    },
+    {
+      id: "azurethistle",
+      name: "Azure Thistle",
+      rarityWeight: 22,
+      growthRateMultiplier: 0.97,
+      stemType: "spike",
+      leafType: "spike",
+      flowerType: "tuft",
+      seedlingType: "point",
+      primaryColor: "#3b82f6",
+      stemColor: "#456341",
+      leafColor: "#6fa963",
+      accentColor: "#dff0ff"
+    },
+    {
+      id: "rubyvine",
+      name: "Ruby Vine",
+      rarityWeight: 20,
+      growthRateMultiplier: 1.05,
+      stemType: "vine",
+      leafType: "heart",
+      flowerType: "cluster",
+      seedlingType: "split",
+      primaryColor: "#e63946",
+      stemColor: "#4f7d3d",
+      leafColor: "#79be57",
+      accentColor: "#ffd6da"
+    },
+    {
+      id: "moonwell",
+      name: "Moonwell Bloom",
+      rarityWeight: 6,
+      growthRateMultiplier: 0.88,
+      stemType: "glass",
+      leafType: "lance",
+      flowerType: "orb",
+      seedlingType: "halo",
+      primaryColor: "#a5b4fc",
+      stemColor: "#4f8b63",
+      leafColor: "#8fd0a1",
+      accentColor: "#f3f4ff"
+    }
   ];
 
   const config = {
@@ -43,6 +108,8 @@
     nextPlantId: 1,
     lastFrameAt: performance.now()
   };
+
+  const totalSpeciesWeight = speciesCatalog.reduce((sum, species) => sum + species.rarityWeight, 0);
 
   function clampWater() {
     state.water = Math.min(state.maxWater, Math.max(0, state.water));
@@ -88,9 +155,59 @@
     syncHud();
   }
 
-  function pickPlantColor() {
-    const index = Math.floor(Math.random() * plantColors.length);
-    return plantColors[index];
+  function randomBetween(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  function pickSpecies() {
+    let threshold = Math.random() * totalSpeciesWeight;
+
+    for (const species of speciesCatalog) {
+      threshold -= species.rarityWeight;
+      if (threshold <= 0) {
+        return species;
+      }
+    }
+
+    return speciesCatalog[speciesCatalog.length - 1];
+  }
+
+  function createPlantVariant(species) {
+    const randomFlowerVariant = Math.floor(randomBetween(0, 3));
+    const randomBaseVariant = Math.floor(randomBetween(0, 3));
+
+    return {
+      species,
+      sizeMultiplier: randomBetween(0.9, 1.16),
+      leanDegrees: randomBetween(-8, 8),
+      stemHeight: randomBetween(0.92, 1.13),
+      stemThickness: randomBetween(0.86, 1.18),
+      leafSpread: randomBetween(0.88, 1.22),
+      leafScale: randomBetween(0.88, 1.16),
+      flowerScale: randomBetween(0.82, 1.24),
+      flowerOffset: randomBetween(-3, 3),
+      petalCount: 4 + Math.floor(randomBetween(0, 4)),
+      flowerVariant: `variant-${randomFlowerVariant}`,
+      baseVariant: `variant-${randomBaseVariant}`,
+      growthRateMultiplier: species.growthRateMultiplier * randomBetween(0.85, 1.17)
+    };
+  }
+
+  function buildPlantRecord(position) {
+    const species = pickSpecies();
+    const variant = createPlantVariant(species);
+
+    return {
+      id: state.nextPlantId,
+      x: position.x,
+      y: position.y,
+      stage: 0,
+      growthTimer: randomBetween(0, config.growthCheckInterval),
+      speciesId: species.id,
+      speciesName: species.name,
+      variant,
+      element: null
+    };
   }
 
   function normalizePosition(event) {
@@ -124,18 +241,11 @@
     state.water -= config.plantCost;
     clampWater();
 
-    const plant = {
-      id: state.nextPlantId,
-      x: position.x,
-      y: position.y,
-      stage: 0,
-      growthTimer: 0,
-      color: pickPlantColor(),
-      element: null
-    };
+    const plant = buildPlantRecord(position);
 
     state.nextPlantId += 1;
     plant.element = UI.createPlantElement(plant);
+    UI.updatePlantElement(plant.element, plant);
     state.plants.push(plant);
     syncHud();
   }
@@ -210,13 +320,13 @@
         }
       }
 
-      plant.growthTimer += growthDelta;
+      plant.growthTimer += growthDelta * plant.variant.growthRateMultiplier;
 
       while (plant.growthTimer >= config.growthCheckInterval && plant.stage < 3) {
         plant.growthTimer -= config.growthCheckInterval;
         if (Math.random() <= config.growthChance) {
           plant.stage += 1;
-          UI.updatePlantElement(plant.element, plant.stage);
+          UI.updatePlantElement(plant.element, plant);
         }
       }
     }

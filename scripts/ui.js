@@ -82,17 +82,69 @@ window.UI = (() => {
 
   function createPlantElement(plant) {
     const el = document.createElement("div");
-    el.className = "plant stage-0";
+    const species = plant.variant.species;
+
+    el.className = [
+      "plant",
+      "stage-0",
+      `species-${species.id}`,
+      `stem-${species.stemType}`,
+      `leaf-${species.leafType}`,
+      `flower-${species.flowerType}`,
+      `seedling-${species.seedlingType}`,
+      `flower-${plant.variant.flowerVariant}`,
+      `base-${plant.variant.baseVariant}`
+    ].join(" ");
+
     el.style.left = `${plant.x}%`;
     el.style.top = `${plant.y}%`;
-    el.style.setProperty("--plant-color", plant.color);
+    el.style.setProperty("--species-primary", species.primaryColor);
+    el.style.setProperty("--species-stem", species.stemColor);
+    el.style.setProperty("--species-leaf", species.leafColor);
+    el.style.setProperty("--species-accent", species.accentColor);
+
+    const baseEl = document.createElement("span");
+    baseEl.className = "plant-base";
+
+    const stemEl = document.createElement("span");
+    stemEl.className = "plant-stem";
+
+    const leftLeafEl = document.createElement("span");
+    leftLeafEl.className = "plant-leaf left";
+
+    const rightLeafEl = document.createElement("span");
+    rightLeafEl.className = "plant-leaf right";
+
+    const flowerEl = document.createElement("span");
+    flowerEl.className = "plant-flower";
+
+    el.appendChild(baseEl);
+    el.appendChild(stemEl);
+    el.appendChild(leftLeafEl);
+    el.appendChild(rightLeafEl);
+    el.appendChild(flowerEl);
+
     gardenEl.appendChild(el);
     return el;
   }
 
-  function updatePlantElement(el, stage) {
+  function updatePlantElement(el, plant) {
+    const stage = plant.stage;
+
     el.classList.remove("stage-0", "stage-1", "stage-2", "stage-3");
     el.classList.add(`stage-${stage}`);
+
+    el.setAttribute("aria-label", `${plant.speciesName}, growth stage ${stage + 1}`);
+    el.style.setProperty("--stage-scale", String([0.34, 0.58, 0.82, 1][stage] ?? 1));
+    el.style.setProperty("--size-mult", plant.variant.sizeMultiplier.toFixed(3));
+    el.style.setProperty("--lean-deg", `${plant.variant.leanDegrees.toFixed(2)}deg`);
+    el.style.setProperty("--stem-height", plant.variant.stemHeight.toFixed(3));
+    el.style.setProperty("--stem-width", plant.variant.stemThickness.toFixed(3));
+    el.style.setProperty("--leaf-spread", plant.variant.leafSpread.toFixed(3));
+    el.style.setProperty("--leaf-scale", plant.variant.leafScale.toFixed(3));
+    el.style.setProperty("--flower-scale", plant.variant.flowerScale.toFixed(3));
+    el.style.setProperty("--flower-offset", `${plant.variant.flowerOffset.toFixed(2)}px`);
+    el.style.setProperty("--petal-count", String(plant.variant.petalCount));
   }
 
   function clearPlants() {

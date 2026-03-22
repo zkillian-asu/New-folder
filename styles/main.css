@@ -275,74 +275,242 @@ h1 {
 
 .plant {
   position: absolute;
-  transform: translate(-50%, -100%);
+  width: 48px;
+  height: 72px;
+  --stage-scale: 0.34;
+  --size-mult: 1;
+  --lean-deg: 0deg;
+  --stem-height: 1;
+  --stem-width: 1;
+  --leaf-spread: 1;
+  --leaf-scale: 1;
+  --flower-scale: 1;
+  --flower-offset: 0px;
+  --petal-count: 5;
+  --species-primary: #76b947;
+  --species-stem: #4f8a3c;
+  --species-leaf: #7ac65d;
+  --species-accent: #f5ffe4;
+  transform: translate(-50%, -100%) rotate(var(--lean-deg)) scale(calc(var(--stage-scale) * var(--size-mult)));
   transform-origin: center bottom;
-  transition: transform 420ms ease, width 420ms ease, height 420ms ease;
-}
-
-.plant::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: 3px;
-  height: 14px;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg, #78a14f 0%, #446f2d 100%);
-}
-
-.plant::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  border-radius: 50%;
-  background: var(--plant-color);
-  transform: translateX(-50%);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35) inset;
+  transition: transform 420ms ease, filter 320ms ease;
+  filter: saturate(1);
 }
 
 .plant.stage-0 {
-  width: 10px;
-  height: 16px;
-}
-
-.plant.stage-0::after {
-  width: 6px;
-  height: 6px;
-  bottom: 10px;
+  filter: saturate(0.82) brightness(0.95);
 }
 
 .plant.stage-1 {
-  width: 16px;
-  height: 24px;
-}
-
-.plant.stage-1::after {
-  width: 10px;
-  height: 10px;
-  bottom: 12px;
+  filter: saturate(0.94) brightness(0.98);
 }
 
 .plant.stage-2 {
-  width: 26px;
-  height: 34px;
-}
-
-.plant.stage-2::after {
-  width: 16px;
-  height: 16px;
-  bottom: 15px;
+  filter: saturate(1.05) brightness(1.02);
 }
 
 .plant.stage-3 {
-  width: 34px;
-  height: 44px;
+  filter: saturate(1.1) brightness(1.04);
 }
 
-.plant.stage-3::after {
-  width: 24px;
-  height: 24px;
-  bottom: 18px;
+.plant-base,
+.plant-stem,
+.plant-leaf,
+.plant-flower {
+  position: absolute;
+  pointer-events: none;
+}
+
+.plant-base {
+  left: 50%;
+  bottom: 2px;
+  width: 18px;
+  height: 10px;
+  transform: translateX(-50%);
+  border-radius: 56% 44% 52% 48%;
+  background: linear-gradient(180deg, rgba(95, 79, 52, 0.75), rgba(71, 57, 35, 0.88));
+}
+
+.plant.base-variant-1 .plant-base {
+  width: 20px;
+  border-radius: 50% 50% 42% 58%;
+}
+
+.plant.base-variant-2 .plant-base {
+  width: 16px;
+  border-radius: 44% 56% 58% 42%;
+}
+
+.plant-stem {
+  left: 50%;
+  bottom: 8px;
+  width: calc(4px * var(--stem-width));
+  height: calc(35px * var(--stem-height));
+  transform: translateX(-50%);
+  border-radius: 6px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--species-stem) 72%, white), var(--species-stem));
+}
+
+.plant-leaf {
+  bottom: calc(18px * var(--stem-height));
+  width: 20px;
+  height: 12px;
+  border-radius: 80% 20% 80% 20%;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--species-leaf) 82%, white), var(--species-leaf));
+}
+
+.plant-leaf.left {
+  left: 50%;
+  transform-origin: right center;
+  transform: translateX(calc(-18px * var(--leaf-spread))) rotate(-35deg) scale(var(--leaf-scale));
+}
+
+.plant-leaf.right {
+  left: 50%;
+  transform-origin: left center;
+  transform: translateX(calc(2px * var(--leaf-spread))) scaleX(-1) rotate(-35deg) scale(var(--leaf-scale));
+}
+
+.plant-flower {
+  left: 50%;
+  bottom: calc(35px * var(--stem-height) + 7px + var(--flower-offset));
+  width: 20px;
+  height: 20px;
+  transform: translateX(-50%) scale(var(--flower-scale));
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, var(--species-accent) 0 28%, color-mix(in srgb, var(--species-primary) 82%, white) 29% 52%, var(--species-primary) 53% 100%);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--species-primary) 76%, black);
+}
+
+.plant.flower-variant-1 .plant-flower {
+  width: 22px;
+  height: 16px;
+  border-radius: 60% 40% 60% 40%;
+}
+
+.plant.flower-variant-2 .plant-flower {
+  width: 18px;
+  height: 22px;
+  border-radius: 45% 55% 42% 58%;
+}
+
+.plant.stage-0 .plant-flower {
+  width: 11px;
+  height: 11px;
+  bottom: 15px;
+  box-shadow: none;
+}
+
+.plant.stage-0 .plant-leaf {
+  opacity: 0;
+}
+
+.plant.stage-1 .plant-flower {
+  width: 14px;
+  height: 14px;
+}
+
+.plant.stage-2 .plant-leaf {
+  bottom: calc(21px * var(--stem-height));
+}
+
+.plant.stage-2 .plant-flower {
+  width: 18px;
+  height: 18px;
+}
+
+.plant.stage-3 .plant-leaf {
+  bottom: calc(24px * var(--stem-height));
+}
+
+.plant.stage-3 .plant-flower {
+  width: 22px;
+  height: 22px;
+}
+
+.plant.seedling-teardrop.stage-0 .plant-flower {
+  border-radius: 60% 60% 75% 75%;
+}
+
+.plant.seedling-round.stage-0 .plant-flower {
+  border-radius: 50%;
+}
+
+.plant.seedling-point.stage-0 .plant-flower {
+  border-radius: 55% 55% 85% 85%;
+}
+
+.plant.seedling-split.stage-0 .plant-flower {
+  clip-path: polygon(0 60%, 50% 0, 100% 60%, 65% 100%, 35% 100%);
+}
+
+.plant.seedling-halo.stage-0 .plant-flower {
+  box-shadow: 0 0 0 2px rgba(245, 247, 255, 0.85);
+}
+
+.plant.stem-jointed .plant-stem {
+  background:
+    repeating-linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--species-stem) 74%, white) 0 6px,
+      var(--species-stem) 6px 11px
+    );
+}
+
+.plant.stem-spike .plant-stem {
+  width: calc(3px * var(--stem-width));
+}
+
+.plant.stem-vine .plant-stem {
+  border-radius: 9px;
+  transform: translateX(-50%) rotate(-5deg);
+}
+
+.plant.stem-glass .plant-stem {
+  background: linear-gradient(180deg, rgba(190, 255, 232, 0.85), rgba(99, 186, 152, 0.9));
+}
+
+.plant.leaf-frond .plant-leaf {
+  width: 22px;
+  height: 10px;
+  border-radius: 88% 22% 88% 22%;
+}
+
+.plant.leaf-spike .plant-leaf {
+  width: 16px;
+  height: 8px;
+  border-radius: 84% 12% 84% 12%;
+}
+
+.plant.leaf-heart .plant-leaf {
+  border-radius: 70% 10% 80% 28%;
+}
+
+.plant.leaf-lance .plant-leaf {
+  width: 19px;
+  height: 7px;
+}
+
+.plant.flower-bell .plant-flower {
+  border-radius: 55% 55% 70% 70%;
+}
+
+.plant.flower-tuft .plant-flower {
+  border-radius: 64% 42% 62% 38%;
+}
+
+.plant.flower-cluster .plant-flower {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--species-primary) 76%, black),
+    -8px 2px 0 -1px color-mix(in srgb, var(--species-primary) 86%, white),
+    8px 2px 0 -1px color-mix(in srgb, var(--species-primary) 86%, white);
+}
+
+.plant.flower-orb .plant-flower {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--species-primary) 76%, black),
+    0 0 18px rgba(220, 232, 255, 0.6);
 }
 
 .droplets {
