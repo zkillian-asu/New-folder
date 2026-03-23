@@ -1,11 +1,9 @@
 (() => {
-  const growthStageScale = [0.34, 0.58, 0.82, 1];
-
   const speciesCatalog = [
     {
       id: "suncrest",
       name: "Suncrest Daisy",
-      rarityWeight: 28,
+      rarityWeight: 20,
       growthRateMultiplier: 1.03,
       stemType: "reed",
       leafType: "oval",
@@ -19,7 +17,7 @@
     {
       id: "coralfern",
       name: "Coral Fern",
-      rarityWeight: 24,
+      rarityWeight: 20,
       growthRateMultiplier: 1,
       stemType: "jointed",
       leafType: "frond",
@@ -33,7 +31,7 @@
     {
       id: "azurethistle",
       name: "Azure Thistle",
-      rarityWeight: 22,
+      rarityWeight: 20,
       growthRateMultiplier: 0.97,
       stemType: "spike",
       leafType: "spike",
@@ -47,7 +45,7 @@
     {
       id: "rubyvine",
       name: "Ruby Vine",
-      rarityWeight: 20,
+      rarityWeight: 5,
       growthRateMultiplier: 1.05,
       stemType: "vine",
       leafType: "heart",
@@ -61,7 +59,7 @@
     {
       id: "moonwell",
       name: "Moonwell Bloom",
-      rarityWeight: 6,
+      rarityWeight: 4,
       growthRateMultiplier: 0.88,
       stemType: "glass",
       leafType: "lance",
@@ -76,35 +74,110 @@
 
   const config = {
     startWater: 30,
-    startMaxWater: 50,
-    startRegenRate: 0.1,
-    plantCost: 5,
+    startMaxWater: 100,
+    regenRate: 0.1,
+    plantCost: 4,
     waterDrainPerSecond: 20,
+    sustainabilityDrainMultiplier: 0.58,
     growthCheckInterval: 2,
-    growthChance: 0.3,
-    shortSourceInstantWater: 24,
-    longSourceBaseYield: 28,
-    longSourceYieldStep: 10,
-    longSourceBaseCooldown: 18,
-    longSourceCooldownFloor: 9,
-    longSourceMaxBoost: 12,
-    longSourceRegenBoost: 0.04,
-    wateringRadius: 140,
-    wateringAcceleration: 2.5
+    growthChance: 0.08,
+    temporaryInitialDraws: 2,
+    temporaryReplenishDuration: 120,
+    temporaryRecoveredCooldown: 10,
+    sustainableBaseYield: 65,
+    sustainableYieldMultiplier: 1.8,
+    sustainableCooldown: 30,
+    stageWaterRequirementMin: 50,
+    stageWaterRequirementMax: 150,
+    stageWaterRequirementMoonwellMin: 72,
+    stageWaterRequirementRubyvineMin: 86,
+    plantRows: [86, 78, 70, 62],
+    plantColumns: [28, 34, 40, 46, 50, 54, 60, 66, 72],
+    plantRowDiagonalSlope: 0.09,
+    minPlantDistance: 4.2,
+    wateringRadius: 180,
+    wateringAcceleration: 6
+  };
+
+  const imageBasePath = "assets/images";
+  const plantArtBySpecies = {
+    suncrest: {
+      seedling: [`${imageBasePath}/Seedling suncrest.png`],
+      sprout: [
+        `${imageBasePath}/Sprout Suncrest (stem).png`,
+        `${imageBasePath}/sprout suncrest 1 (stem).png`
+      ],
+      juvenile: [`${imageBasePath}/Suncrest juvenile.png`, `${imageBasePath}/Suncrest juvenile 1.png`]
+    },
+    coralfern: {
+      seedling: [`${imageBasePath}/Seedling coralfern.png`],
+      sprout: [
+        `${imageBasePath}/sprout coralfern  (stem).png`,
+        `${imageBasePath}/Sprout Coralfern 1 (stem).png`
+      ],
+      juvenile: [`${imageBasePath}/Coralfern Juvenile.png`, `${imageBasePath}/Coralfern Juvenile 1.png`]
+    },
+    azurethistle: {
+      seedling: [`${imageBasePath}/seedling azurethistle.png`],
+      sprout: [
+        `${imageBasePath}/sprout Azurethistle (stem).png`,
+        `${imageBasePath}/sprout azurethistle 1 (stem).png`
+      ],
+      juvenile: [
+        `${imageBasePath}/Azurethistle Juvenile.png`,
+        `${imageBasePath}/Azurethistle Juvenile 1.png`
+      ]
+    },
+    rubyvine: {
+      seedling: [`${imageBasePath}/Seedling Rubyvine.png`],
+      sprout: [
+        `${imageBasePath}/sprout Rubyvine (stem).png`,
+        `${imageBasePath}/sprout Rubyvine 1 (stem).png`
+      ],
+      juvenile: [`${imageBasePath}/Rubyvine Juvenile.png`, `${imageBasePath}/Rubyvine Juvenile 1.png`]
+    },
+    moonwell: {
+      seedling: [`${imageBasePath}/Seedling moonwell.png`],
+      sprout: [
+        `${imageBasePath}/sprout moonwell (stem).png`,
+        `${imageBasePath}/Sprout Moonwell 1 (stem).png`
+      ],
+      juvenile: [`${imageBasePath}/Juvenile Moonwell.png`, `${imageBasePath}/Moonwell juvenile 1.png`]
+    }
   };
 
   const state = {
     water: config.startWater,
     maxWater: config.startMaxWater,
-    regenRate: config.startRegenRate,
-    waterSources: 0,
+    passiveRegenMultiplier: 1,
+    totalPlantsSeeded: 0,
+    totalPlantsGrown: 0,
+    sustainableDraws: 0,
     plants: [],
-    shortSourceState: "available",
-    shortSourceLeftAfterDraw: false,
-    longSourceCooldown: 0,
-    longSourceCollections: 0,
+    sources: {
+      rolesAssigned: false,
+      roleByWellId: {
+        a: null,
+        b: null
+      },
+      temporary: {
+        drawsRemainingInitial: config.temporaryInitialDraws,
+        isDry: false,
+        replenishTimer: 0,
+        cooldown: 0,
+        isPermanentlyDrained: false
+      },
+      sustainable: {
+        cooldown: 0,
+        maxCooldown: config.sustainableCooldown,
+        currentYield: config.sustainableBaseYield
+      },
+      sustainabilityMode: false,
+      dryupModalShown: false
+    },
     isWatering: false,
     wateringPoint: null,
+    thrivingPopupShown: false,
     nextPlantId: 1,
     lastFrameAt: performance.now()
   };
@@ -115,21 +188,44 @@
     state.water = Math.min(state.maxWater, Math.max(0, state.water));
   }
 
+  function getHappinessFace() {
+    if (state.totalPlantsGrown >= 3) {
+      return ":)";
+    }
+    if (state.sustainableDraws > 0) {
+      return ":/";
+    }
+    return ":(";
+  }
+
   function syncHud() {
-    const longYield = config.longSourceBaseYield + state.longSourceCollections * config.longSourceYieldStep;
+    const happinessFace = getHappinessFace();
 
     UI.updateHud({
       water: state.water,
       maxWater: state.maxWater,
-      regenRate: state.regenRate,
-      waterSources: state.waterSources,
-      plantsCount: state.plants.length
+      plantsSeeded: state.totalPlantsSeeded,
+      plantsGrown: state.totalPlantsGrown,
+      happinessFace
     });
 
+    if (!state.thrivingPopupShown && happinessFace === ":)") {
+      state.thrivingPopupShown = true;
+      UI.setThrivingPopupVisible(true);
+    }
+
+    const temporaryWell = state.sources.roleByWellId.a === "temporary" ? "a" : "b";
+    const sustainableWell = temporaryWell === "a" ? "b" : "a";
+
     UI.updateSourceStatus({
-      shortState: state.shortSourceState,
-      longCooldown: state.longSourceCooldown,
-      longYield
+      roles: {
+        assigned: state.sources.rolesAssigned,
+        temporary: temporaryWell,
+        sustainable: sustainableWell
+      },
+      temporary: state.sources.temporary,
+      sustainable: state.sources.sustainable,
+      sustainabilityMode: state.sources.sustainabilityMode
     });
 
     UI.setHintVisible(state.plants.length === 0);
@@ -138,25 +234,34 @@
   function resetGame() {
     state.water = config.startWater;
     state.maxWater = config.startMaxWater;
-    state.regenRate = config.startRegenRate;
-    state.waterSources = 0;
+    state.passiveRegenMultiplier = 1;
+    state.totalPlantsSeeded = 0;
+    state.totalPlantsGrown = 0;
+    state.sustainableDraws = 0;
     state.plants = [];
-    state.shortSourceState = "available";
-    state.shortSourceLeftAfterDraw = false;
-    state.longSourceCooldown = 0;
-    state.longSourceCollections = 0;
+    state.sources.rolesAssigned = false;
+    state.sources.roleByWellId.a = null;
+    state.sources.roleByWellId.b = null;
+    state.sources.temporary.drawsRemainingInitial = config.temporaryInitialDraws;
+    state.sources.temporary.isDry = false;
+    state.sources.temporary.replenishTimer = 0;
+    state.sources.temporary.cooldown = 0;
+    state.sources.temporary.isPermanentlyDrained = false;
+    state.sources.sustainable.cooldown = 0;
+    state.sources.sustainable.currentYield = config.sustainableBaseYield;
+    state.sources.sustainabilityMode = false;
+    state.sources.dryupModalShown = false;
     state.isWatering = false;
     state.wateringPoint = null;
+    state.thrivingPopupShown = false;
     state.nextPlantId = 1;
 
     UI.clearPlants();
     UI.setWateringVisual(false);
+    UI.setSustainabilityPopupVisible(false);
+    UI.setThrivingPopupVisible(false);
     UI.setPanel(0);
     syncHud();
-  }
-
-  function randomBetween(min, max) {
-    return min + Math.random() * (max - min);
   }
 
   function pickSpecies() {
@@ -172,42 +277,73 @@
     return speciesCatalog[speciesCatalog.length - 1];
   }
 
+  function pickFrom(list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function getPlantStageImages(speciesId, plantIndex) {
+    const art = plantArtBySpecies[speciesId];
+    if (!art) {
+      return ["", "", "", ""];
+    }
+
+    const seedlingIndex = plantIndex % art.seedling.length;
+    const sproutIndex = (plantIndex + 1) % art.sprout.length;
+    const juvenileIndex = (plantIndex + 2) % art.juvenile.length;
+    const juvenileMatureIndex = art.juvenile.length > 1
+      ? (juvenileIndex + 1) % art.juvenile.length
+      : juvenileIndex;
+
+    return [
+      art.seedling[seedlingIndex],
+      art.sprout[sproutIndex],
+      art.juvenile[juvenileIndex],
+      art.juvenile[juvenileMatureIndex]
+    ];
+  }
+
   function createPlantVariant(species) {
-    const randomFlowerVariant = Math.floor(randomBetween(0, 3));
-    const randomBaseVariant = Math.floor(randomBetween(0, 3));
+    const juvenileVariantIndex = Math.floor(Math.random() * 3);
 
     return {
       species,
-      sizeMultiplier: randomBetween(0.9, 1.16),
-      leanDegrees: randomBetween(-8, 8),
-      stemHeight: randomBetween(0.92, 1.13),
-      stemThickness: randomBetween(0.86, 1.18),
-      leafSpread: randomBetween(0.88, 1.22),
-      leafScale: randomBetween(0.88, 1.16),
-      flowerScale: randomBetween(0.82, 1.24),
-      flowerOffset: randomBetween(-3, 3),
-      petalCount: 4 + Math.floor(randomBetween(0, 4)),
-      flowerVariant: `variant-${randomFlowerVariant}`,
-      baseVariant: `variant-${randomBaseVariant}`,
-      growthRateMultiplier: species.growthRateMultiplier * randomBetween(0.85, 1.17)
+      juvenileVariant: `juvenile-${juvenileVariantIndex}`,
+      growthRateMultiplier: species.growthRateMultiplier
     };
   }
 
   function buildPlantRecord(position) {
     const species = pickSpecies();
     const variant = createPlantVariant(species);
+    const stageWaterRequired = getStageWaterRequired(species.id);
 
     return {
       id: state.nextPlantId,
       x: position.x,
       y: position.y,
       stage: 0,
-      growthTimer: randomBetween(0, config.growthCheckInterval),
+      stageWaterApplied: 0,
+      stageWaterRequired,
       speciesId: species.id,
       speciesName: species.name,
       variant,
+      stageImages: getPlantStageImages(species.id, state.nextPlantId),
+      hasCountedGrown: false,
       element: null
     };
+  }
+
+  function getStageWaterRequired(speciesId) {
+    let minimum = config.stageWaterRequirementMin;
+
+    if (speciesId === "moonwell") {
+      minimum = config.stageWaterRequirementMoonwellMin;
+    } else if (speciesId === "rubyvine") {
+      minimum = config.stageWaterRequirementRubyvineMin;
+    }
+
+    const max = config.stageWaterRequirementMax;
+    return minimum + Math.random() * (max - minimum);
   }
 
   function normalizePosition(event) {
@@ -228,25 +364,71 @@
     };
   }
 
-  function plantSeed(event) {
-    if (state.isWatering) {
-      return;
-    }
-
-    if (state.water < config.plantCost) {
-      return;
-    }
-
-    const position = normalizePosition(event);
-    state.water -= config.plantCost;
-    clampWater();
-
+  function addPlantAt(position) {
     const plant = buildPlantRecord(position);
 
     state.nextPlantId += 1;
     plant.element = UI.createPlantElement(plant);
     UI.updatePlantElement(plant.element, plant);
     state.plants.push(plant);
+    state.totalPlantsSeeded += 1;
+  }
+
+  function plantSeedAt(position) {
+    const effectivePlantCost = state.sources.sustainabilityMode ? Math.max(3, config.plantCost - 1) : config.plantCost;
+
+    if (state.water < effectivePlantCost) {
+      return;
+    }
+
+    state.water -= effectivePlantCost;
+    clampWater();
+
+    addPlantAt(position);
+    syncHud();
+  }
+
+  function findRowPlantPosition() {
+    const maxAttempts = 18;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const rowY = pickFrom(config.plantRows);
+      const colX = pickFrom(config.plantColumns);
+      const x = Math.max(24, Math.min(76, colX + (Math.random() * 4 - 2)));
+      const diagonalOffset = (x - 50) * config.plantRowDiagonalSlope;
+      const y = Math.max(14, Math.min(95, rowY + diagonalOffset + (Math.random() * 2.8 - 1.4)));
+
+      const crowded = state.plants.some((plant) => {
+        const dx = plant.x - x;
+        const dy = (plant.y - y) * 1.6;
+        return Math.hypot(dx, dy) < config.minPlantDistance;
+      });
+
+      if (!crowded) {
+        return { x, y };
+      }
+    }
+
+    const fallbackX = pickFrom(config.plantColumns);
+    const fallbackY = pickFrom(config.plantRows) + (fallbackX - 50) * config.plantRowDiagonalSlope;
+    return { x: fallbackX, y: Math.max(14, Math.min(95, fallbackY)) };
+  }
+
+  function plantSeedRandomRow() {
+    if (state.isWatering) {
+      return;
+    }
+
+    const effectivePlantCost = state.sources.sustainabilityMode ? Math.max(3, config.plantCost - 1) : config.plantCost;
+    if (state.water < effectivePlantCost) {
+      return;
+    }
+
+    state.water -= effectivePlantCost;
+    clampWater();
+
+    addPlantAt(findRowPlantPosition());
+    addPlantAt(findRowPlantPosition());
     syncHud();
   }
 
@@ -268,65 +450,136 @@
     UI.setWateringVisual(isActive);
   }
 
-  function drawShortSource() {
-    if (state.shortSourceState !== "available") {
+  function assignSourceRoles(temporaryWellId) {
+    if (state.sources.rolesAssigned) {
       return;
     }
 
-    state.water += config.shortSourceInstantWater;
+    const sustainableWellId = temporaryWellId === "a" ? "b" : "a";
+    state.sources.roleByWellId[temporaryWellId] = "temporary";
+    state.sources.roleByWellId[sustainableWellId] = "sustainable";
+    state.sources.rolesAssigned = true;
+  }
+
+  function refillWaterCanToMax() {
+    state.water = state.maxWater;
     clampWater();
-    state.shortSourceState = "drawn";
-    state.waterSources += 1;
+  }
+
+  function enableSustainabilityMode() {
+    state.sources.sustainabilityMode = true;
+    UI.setSustainabilityPopupVisible(false);
+  }
+
+  function triggerTemporaryDryup() {
+    state.sources.temporary.isDry = true;
+    state.sources.temporary.replenishTimer = config.temporaryReplenishDuration;
+    state.sources.temporary.cooldown = 0;
+    state.sources.temporary.isPermanentlyDrained = true;
+
+    if (!state.sources.dryupModalShown) {
+      state.sources.dryupModalShown = true;
+      UI.setSustainabilityPopupVisible(true);
+    }
+  }
+
+  function drawTemporarySource() {
+    const temporary = state.sources.temporary;
+
+    if (temporary.isPermanentlyDrained) {
+      return;
+    }
+
+    if (temporary.isDry && temporary.replenishTimer > 0) {
+      return;
+    }
+
+    if (temporary.cooldown > 0) {
+      return;
+    }
+
+    refillWaterCanToMax();
+    state.water += 50;
+    clampWater();
+
+    if (temporary.drawsRemainingInitial > 0) {
+      temporary.drawsRemainingInitial -= 1;
+      if (temporary.drawsRemainingInitial <= 0) {
+        triggerTemporaryDryup();
+      }
+    } else {
+      temporary.cooldown = config.temporaryRecoveredCooldown;
+    }
+
     syncHud();
   }
 
-  function collectLongSource() {
-    if (state.longSourceCooldown > 0) {
+  function drawSustainableSource() {
+    const sustainable = state.sources.sustainable;
+    if (sustainable.cooldown > 0) {
       return;
     }
 
-    const yieldAmount = config.longSourceBaseYield + state.longSourceCollections * config.longSourceYieldStep;
-    state.water += yieldAmount;
-    state.maxWater += config.longSourceMaxBoost;
-    state.regenRate += config.longSourceRegenBoost;
-    state.waterSources += 1;
-    state.longSourceCollections += 1;
-    state.longSourceCooldown = Math.max(
-      config.longSourceCooldownFloor,
-      config.longSourceBaseCooldown - state.longSourceCollections
-    );
-
+    state.water += sustainable.currentYield;
     clampWater();
+    state.sustainableDraws += 1;
+    state.passiveRegenMultiplier *= 2;
+    sustainable.cooldown = sustainable.maxCooldown;
+    sustainable.currentYield *= config.sustainableYieldMultiplier;
     syncHud();
+  }
+
+  function interactWithWell(wellId) {
+    assignSourceRoles(wellId);
+
+    if (state.sources.roleByWellId[wellId] === "temporary") {
+      drawTemporarySource();
+    } else {
+      drawSustainableSource();
+    }
+  }
+
+  function updateSources(deltaSeconds) {
+    const temporary = state.sources.temporary;
+    const sustainable = state.sources.sustainable;
+
+    if (temporary.isDry && temporary.replenishTimer > 0) {
+      temporary.replenishTimer = Math.max(0, temporary.replenishTimer - deltaSeconds);
+      if (temporary.replenishTimer <= 0) {
+        temporary.isDry = false;
+        state.sources.sustainabilityMode = false;
+      }
+    }
+
+    temporary.cooldown = Math.max(0, temporary.cooldown - deltaSeconds);
+    sustainable.cooldown = Math.max(0, sustainable.cooldown - deltaSeconds);
   }
 
   function updatePlantGrowth(deltaSeconds) {
+    if (!state.isWatering) {
+      return;
+    }
+
+    const drainMultiplier = state.sources.sustainabilityMode ? config.sustainabilityDrainMultiplier : 1;
+    const stageWaterGain = config.waterDrainPerSecond * drainMultiplier * deltaSeconds;
+
     for (const plant of state.plants) {
       if (plant.stage >= 3) {
         continue;
       }
 
-      let growthDelta = deltaSeconds;
+      plant.stageWaterApplied += stageWaterGain;
 
-      if (state.isWatering && state.wateringPoint) {
-        const px = (plant.x / 100) * state.wateringPoint.width;
-        const py = (plant.y / 100) * state.wateringPoint.height;
-        const dx = px - state.wateringPoint.x;
-        const dy = py - state.wateringPoint.y;
-        const distance = Math.hypot(dx, dy);
+      while (plant.stageWaterApplied >= plant.stageWaterRequired && plant.stage < 3) {
+        plant.stageWaterApplied -= plant.stageWaterRequired;
+        plant.stage += 1;
+        UI.updatePlantElement(plant.element, plant);
 
-        if (distance <= config.wateringRadius) {
-          growthDelta += deltaSeconds * config.wateringAcceleration;
-        }
-      }
-
-      plant.growthTimer += growthDelta * plant.variant.growthRateMultiplier;
-
-      while (plant.growthTimer >= config.growthCheckInterval && plant.stage < 3) {
-        plant.growthTimer -= config.growthCheckInterval;
-        if (Math.random() <= config.growthChance) {
-          plant.stage += 1;
-          UI.updatePlantElement(plant.element, plant);
+        if (plant.stage >= 3 && !plant.hasCountedGrown) {
+          plant.hasCountedGrown = true;
+          state.totalPlantsGrown += 1;
+        } else if (plant.stage < 3) {
+          plant.stageWaterRequired = getStageWaterRequired(plant.speciesId);
         }
       }
     }
@@ -336,11 +589,12 @@
     const deltaSeconds = Math.min(0.1, (timestamp - state.lastFrameAt) / 1000);
     state.lastFrameAt = timestamp;
 
-    state.water += state.regenRate * deltaSeconds;
-    state.longSourceCooldown = Math.max(0, state.longSourceCooldown - deltaSeconds);
+    state.water += config.regenRate * state.passiveRegenMultiplier * deltaSeconds;
+    updateSources(deltaSeconds);
 
     if (state.isWatering) {
-      state.water -= config.waterDrainPerSecond * deltaSeconds;
+      const drainMultiplier = state.sources.sustainabilityMode ? config.sustainabilityDrainMultiplier : 1;
+      state.water -= config.waterDrainPerSecond * drainMultiplier * deltaSeconds;
       if (state.water <= 0) {
         state.water = 0;
         setWatering(false);
@@ -354,8 +608,8 @@
     requestAnimationFrame(tick);
   }
 
-  UI.onGardenClick((event) => {
-    plantSeed(event);
+  UI.onPlantPress(() => {
+    plantSeedRandomRow();
   });
 
   UI.onGardenPointerMove((event) => {
@@ -376,23 +630,29 @@
     }
   );
 
-  UI.onShortSource(() => {
-    drawShortSource();
+  UI.onWaterHover(
+    () => {
+      if (state.water <= 0) {
+        return;
+      }
+      setWatering(true);
+    },
+    () => {
+      setWatering(false);
+    }
+  );
+
+  UI.onWellInteract((wellId) => {
+    interactWithWell(wellId);
   });
 
-  UI.onLongSource(() => {
-    collectLongSource();
+  UI.onSustainabilityAction(() => {
+    enableSustainabilityMode();
+    syncHud();
   });
 
-  UI.onPanelChange((nextPanel, previousPanel) => {
-    if (previousPanel === 1 && nextPanel === 0 && state.shortSourceState === "drawn") {
-      state.shortSourceLeftAfterDraw = true;
-    }
-
-    if (nextPanel === 1 && state.shortSourceState === "drawn" && state.shortSourceLeftAfterDraw) {
-      state.shortSourceState = "dry";
-      syncHud();
-    }
+  UI.onThrivingContinue(() => {
+    UI.setThrivingPopupVisible(false);
   });
 
   UI.onRestart(() => {

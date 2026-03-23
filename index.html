@@ -33,16 +33,16 @@
 
         <section class="stats" aria-live="polite">
           <div class="stat-card">
-            <span class="label">Regen / sec</span>
-            <span id="regenValue" class="value">0.1</span>
+            <span class="label">Plants Seeded</span>
+            <span id="plantsSeededValue" class="value">0</span>
           </div>
           <div class="stat-card">
-            <span class="label">Sources Secured</span>
-            <span id="sourcesValue" class="value">0</span>
+            <span class="label">Plants Grown</span>
+            <span id="plantsGrownValue" class="value">0</span>
           </div>
           <div class="stat-card">
-            <span class="label">Plants</span>
-            <span id="plantsValue" class="value">0</span>
+            <span class="label">Plant Happiness</span>
+            <span id="happinessValue" class="value">:(</span>
           </div>
         </section>
 
@@ -56,7 +56,7 @@
                 <div class="garden-detail cactus cactus-a"></div>
                 <div class="garden-detail cactus cactus-b"></div>
               </div>
-              <p id="gardenHint" class="hint">Click anywhere to plant a seed</p>
+              <p id="gardenHint" class="hint">Tap Plant to sow a random seed row</p>
               <div id="waterDroplets" class="droplets" aria-hidden="true">
                 <span class="droplet"></span>
                 <span class="droplet"></span>
@@ -65,25 +65,47 @@
                 <span class="droplet"></span>
               </div>
 
+              <button id="centralPlantButton" class="central-plant-btn" type="button">Plant</button>
+
               <button id="centralWaterButton" class="central-water-btn" type="button">Hold to Water</button>
             </article>
 
             <article class="panel sources-panel" aria-label="Water sources panel">
-              <h2>Water Sources</h2>
-              <p class="panel-copy">Swipe here to manage your two source strategies.</p>
+              <div class="alt-garden">
+                <div class="garden-detail dune"></div>
+                <div class="garden-detail stone stone-a"></div>
+                <div class="garden-detail stone stone-b"></div>
+                <div class="garden-detail shrub shrub-a"></div>
+                <div class="garden-detail shrub shrub-b"></div>
 
-              <div class="source-card short-source">
-                <h3>Short-Term Source</h3>
-                <p>Quick boost now, but it dries up after you leave and return.</p>
-                <p id="shortSourceStatus" class="source-status">Status: Available</p>
-                <button id="shortSourceButton" class="source-action" type="button">Draw Short-Term Water</button>
+                <article id="wellA" class="well-circle well-circle-a" aria-live="polite">
+                  <button id="wellAButton" class="well-tap-zone" type="button" aria-label="Tap to draw water from Well A"></button>
+                  <div id="wellAProgress" class="well-progress" aria-hidden="true"></div>
+                  <div id="wellAIcon" class="well-icon" aria-hidden="true"></div>
+                  <span id="wellARole" class="well-role-badge" aria-label="Well A role">Unassigned</span>
+                </article>
+
+                <article id="wellB" class="well-circle well-circle-b" aria-live="polite">
+                  <button id="wellBButton" class="well-tap-zone" type="button" aria-label="Tap to draw water from Well B"></button>
+                  <div id="wellBProgress" class="well-progress" aria-hidden="true"></div>
+                  <div id="wellBIcon" class="well-icon" aria-hidden="true"></div>
+                  <span id="wellBRole" class="well-role-badge" aria-label="Well B role">Unassigned</span>
+                </article>
               </div>
 
-              <div class="source-card long-source">
-                <h3>Long-Term Source</h3>
-                <p>Collect periodically. Yield grows over time and strengthens your future.</p>
-                <p id="longSourceStatus" class="source-status">Status: Ready</p>
-                <button id="longSourceButton" class="source-action" type="button">Collect Long-Term Water</button>
+              <p id="sustainabilityBadge" class="sustainability-badge hide">Sustainability mode active</p>
+
+              <div id="sustainabilityModal" class="sustainability-modal hide" role="dialog" aria-live="assertive" aria-modal="true">
+                <div class="sustainability-modal-card">
+                  <h3>Oh no! This water source has been overused, and has dried out.</h3>
+                  <p>
+                    Communities are often forced to make insufficient water last. Let&apos;s implement extreme
+                    sustainability practices until more water is available.
+                  </p>
+                  <button id="sustainabilityActionButton" class="action-btn sustain-btn" type="button">
+                    Implement Sustainable Water Use
+                  </button>
+                </div>
               </div>
             </article>
           </div>
@@ -93,6 +115,17 @@
           <button id="panelDot0" class="panel-dot active" type="button" aria-label="Go to garden panel"></button>
           <button id="panelDot1" class="panel-dot" type="button" aria-label="Go to water sources panel"></button>
           <span id="panelLabel" class="panel-label">Garden</span>
+        </div>
+
+        <div id="thrivingModal" class="thriving-modal hide" role="dialog" aria-live="assertive" aria-modal="true">
+          <div class="thriving-modal-card">
+            <h3>Congratulations!</h3>
+            <p>
+              A little water goes a long way, but when there is enough water to go around,
+              everyone and everything thrives. Charity: Water seeks to help the world thrive.
+            </p>
+            <button id="thrivingContinueButton" class="action-btn thrive-btn" type="button">Continue</button>
+          </div>
         </div>
       </section>
 
