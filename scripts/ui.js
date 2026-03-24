@@ -12,11 +12,12 @@ window.UI = (() => {
   const swipeShellEl = document.getElementById("swipeShell");
   const panelsTrackEl = document.getElementById("panelsTrack");
   const panelCount = 2;
-  const panelLabelEl = document.getElementById("panelLabel");
   const panelDotEls = [
     document.getElementById("panelDot0"),
     document.getElementById("panelDot1")
   ];
+  const panelPrevEl = document.getElementById("panelPrev");
+  const panelNextEl = document.getElementById("panelNext");
 
   const centralWaterButtonEl = document.getElementById("centralWaterButton");
   const sustainabilityBadgeEl = document.getElementById("sustainabilityBadge");
@@ -362,8 +363,15 @@ window.UI = (() => {
     panelsTrackEl.style.transform = `translateX(-${panelIndex * 100}%)`;
     panelDotEls.forEach((dot, dotIndex) => {
       dot.classList.toggle("active", dotIndex === panelIndex);
+      dot.setAttribute("aria-selected", String(dotIndex === panelIndex));
     });
-    panelLabelEl.textContent = panelIndex === 0 ? "Garden" : "Water Wells";
+    if (panelPrevEl) {
+      panelPrevEl.disabled = panelIndex === 0;
+    }
+
+    if (panelNextEl) {
+      panelNextEl.disabled = panelIndex === panelCount - 1;
+    }
 
     if (panelChangeHandler && previous !== panelIndex) {
       panelChangeHandler(panelIndex, previous);
@@ -377,6 +385,14 @@ window.UI = (() => {
   function bindPanelDots() {
     panelDotEls[0].addEventListener("click", () => setPanel(0));
     panelDotEls[1].addEventListener("click", () => setPanel(1));
+
+    if (panelPrevEl) {
+      panelPrevEl.addEventListener("click", () => setPanel(panelIndex - 1));
+    }
+
+    if (panelNextEl) {
+      panelNextEl.addEventListener("click", () => setPanel(panelIndex + 1));
+    }
   }
 
   function bindSwipe() {

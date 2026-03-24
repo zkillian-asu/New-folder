@@ -13,6 +13,7 @@
   <body>
     <main class="app-shell">
       <section class="hero-card">
+        <img class="hero-corner-logo" src="assets/images/charity water pic 4.jpg" alt="" aria-hidden="true" />
         <p class="eyebrow">charity: water inspired experience</p>
         <h1>Desert Sanctuary</h1>
         <p class="subhead">
@@ -109,12 +110,19 @@
               </div>
             </article>
           </div>
+
+          <div class="swipe-branding" aria-hidden="true">
+            <img class="swipe-branding-mark" src="assets/images/charity water pic 4.jpg" alt="" />
+          </div>
         </section>
 
         <div class="panel-nav" aria-label="Panel selector">
-          <button id="panelDot0" class="panel-dot active" type="button" aria-label="Go to garden panel"></button>
-          <button id="panelDot1" class="panel-dot" type="button" aria-label="Go to water sources panel"></button>
-          <span id="panelLabel" class="panel-label">Garden</span>
+          <button id="panelPrev" class="panel-arrow" type="button" aria-label="Go to previous panel">&#x2039;</button>
+          <div class="panel-toggle" role="tablist" aria-label="Choose panel">
+            <button id="panelDot0" class="panel-dot active" type="button" role="tab" aria-selected="true" aria-label="Go to garden panel">Garden</button>
+            <button id="panelDot1" class="panel-dot" type="button" role="tab" aria-selected="false" aria-label="Go to water sources panel">Wells</button>
+          </div>
+          <button id="panelNext" class="panel-arrow" type="button" aria-label="Go to next panel">&#x203A;</button>
         </div>
 
         <div id="thrivingModal" class="thriving-modal hide" role="dialog" aria-live="assertive" aria-modal="true">
@@ -132,6 +140,10 @@
       <section class="controls">
         <button id="restartButton" class="action-btn restart-btn" type="button">Restart Garden</button>
       </section>
+
+      <div class="page-branding" aria-hidden="true">
+        <img class="page-branding-bottom" src="assets/images/charity water pic 1.jpg" alt="" />
+      </div>
     </main>
 
     <script src="scripts/ui.js"></script>
