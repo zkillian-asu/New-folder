@@ -99,7 +99,44 @@
     wateringAcceleration: 6
   };
 
+  const difficultyProfiles = {
+    easy: {
+      stageWaterRequirementMultiplier: 0.88,
+      wateringDrainMultiplier: 0.9,
+      plantCostMultiplier: 0.9
+    },
+    normal: {
+      stageWaterRequirementMultiplier: 1,
+      wateringDrainMultiplier: 1,
+      plantCostMultiplier: 1
+    },
+    hard: {
+      stageWaterRequirementMultiplier: 1.12,
+      wateringDrainMultiplier: 1.1,
+      plantCostMultiplier: 1.1
+    }
+  };
+
   const imageBasePath = "assets/images";
+  const audioBasePath = "assets/audio";
+
+  const sfx = {
+    plant: new Audio(`${audioBasePath}/freesound_community-big-plants-crops-growing-quickly-43721.mp3`),
+    growth: [
+      new Audio(`${audioBasePath}/u_xjrmmgxfru-hit-plant-01-266293.mp3`),
+      new Audio(`${audioBasePath}/u_xjrmmgxfru-hit-plant-02-266291.mp3`)
+    ],
+    nextGrowthIndex: 0,
+    lastGrowthPlayedAt: 0,
+    growthMinIntervalMs: 220
+  };
+
+  sfx.plant.preload = "auto";
+  sfx.plant.volume = 0.12;
+  sfx.growth.forEach((clip) => {
+    clip.preload = "auto";
+    clip.volume = 0.09;
+  });
   const plantArtBySpecies = {
     suncrest: {
       seedling: [`${imageBasePath}/Seedling suncrest.png`],
@@ -178,14 +215,67 @@
     isWatering: false,
     wateringPoint: null,
     thrivingPopupShown: false,
+    difficulty: "normal",
     nextPlantId: 1,
     lastFrameAt: performance.now()
   };
 
   const totalSpeciesWeight = speciesCatalog.reduce((sum, species) => sum + species.rarityWeight, 0);
 
+  function playClip(clip) {
+    if (!clip) {
+      return;
+    }
+
+    try {
+      clip.currentTime = 0;
+      const playPromise = clip.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+    } catch (_error) {
+      // Ignore playback interruptions to keep gameplay fluid.
+    }
+  }
+
+  function playPlantSound() {
+    playClip(sfx.plant);
+  }
+
+  function playGrowthSound() {
+    const now = performance.now();
+    if (now - sfx.lastGrowthPlayedAt < sfx.growthMinIntervalMs) {
+      return;
+    }
+
+    const clip = sfx.growth[sfx.nextGrowthIndex % sfx.growth.length];
+    sfx.nextGrowthIndex += 1;
+    sfx.lastGrowthPlayedAt = now;
+    playClip(clip);
+  }
+
   function clampWater() {
     state.water = Math.min(state.maxWater, Math.max(0, state.water));
+  }
+
+  function getDifficultyProfile(mode = state.difficulty) {
+    return difficultyProfiles[mode] || difficultyProfiles.normal;
+  }
+
+  function getEffectivePlantCost() {
+    const profile = getDifficultyProfile();
+    const baseCost = config.plantCost * profile.plantCostMultiplier;
+    const sustainabilityAdjusted = state.sources.sustainabilityMode ? Math.max(3, baseCost - 1) : baseCost;
+    return Math.max(1, sustainabilityAdjusted);
+  }
+
+  function applyDifficultyBackdrop(mode = state.difficulty) {
+    if (!document.body) {
+      return;
+    }
+
+    document.body.classList.remove("difficulty-easy", "difficulty-normal", "difficulty-hard");
+    document.body.classList.add(`difficulty-${mode}`);
   }
 
   function getHappinessFace() {
@@ -261,6 +351,7 @@
     UI.setSustainabilityPopupVisible(false);
     UI.setThrivingPopupVisible(false);
     UI.setPanel(0);
+    applyDifficultyBackdrop();
     syncHud();
   }
 
@@ -343,7 +434,9 @@
     }
 
     const max = config.stageWaterRequirementMax;
-    return minimum + Math.random() * (max - minimum);
+    const profile = getDifficultyProfile();
+    const required = minimum + Math.random() * (max - minimum);
+    return required * profile.stageWaterRequirementMultiplier;
   }
 
   function normalizePosition(event) {
@@ -375,7 +468,7 @@
   }
 
   function plantSeedAt(position) {
-    const effectivePlantCost = state.sources.sustainabilityMode ? Math.max(3, config.plantCost - 1) : config.plantCost;
+    const effectivePlantCost = getEffectivePlantCost();
 
     if (state.water < effectivePlantCost) {
       return;
@@ -385,6 +478,7 @@
     clampWater();
 
     addPlantAt(position);
+    playPlantSound();
     syncHud();
   }
 
@@ -419,7 +513,7 @@
       return;
     }
 
-    const effectivePlantCost = state.sources.sustainabilityMode ? Math.max(3, config.plantCost - 1) : config.plantCost;
+    const effectivePlantCost = getEffectivePlantCost();
     if (state.water < effectivePlantCost) {
       return;
     }
@@ -429,6 +523,7 @@
 
     addPlantAt(findRowPlantPosition());
     addPlantAt(findRowPlantPosition());
+    playPlantSound();
     syncHud();
   }
 
@@ -560,7 +655,8 @@
       return;
     }
 
-    const drainMultiplier = state.sources.sustainabilityMode ? config.sustainabilityDrainMultiplier : 1;
+    const profile = getDifficultyProfile();
+    const drainMultiplier = (state.sources.sustainabilityMode ? config.sustainabilityDrainMultiplier : 1) * profile.wateringDrainMultiplier;
     const stageWaterGain = config.waterDrainPerSecond * drainMultiplier * deltaSeconds;
 
     for (const plant of state.plants) {
@@ -574,6 +670,7 @@
         plant.stageWaterApplied -= plant.stageWaterRequired;
         plant.stage += 1;
         UI.updatePlantElement(plant.element, plant);
+        playGrowthSound();
 
         if (plant.stage >= 3 && !plant.hasCountedGrown) {
           plant.hasCountedGrown = true;
@@ -593,7 +690,8 @@
     updateSources(deltaSeconds);
 
     if (state.isWatering) {
-      const drainMultiplier = state.sources.sustainabilityMode ? config.sustainabilityDrainMultiplier : 1;
+      const profile = getDifficultyProfile();
+      const drainMultiplier = (state.sources.sustainabilityMode ? config.sustainabilityDrainMultiplier : 1) * profile.wateringDrainMultiplier;
       state.water -= config.waterDrainPerSecond * drainMultiplier * deltaSeconds;
       if (state.water <= 0) {
         state.water = 0;
@@ -646,6 +744,26 @@
     interactWithWell(wellId);
   });
 
+  UI.onDifficultyChange((nextDifficulty) => {
+    const currentProfile = getDifficultyProfile();
+    const nextProfile = getDifficultyProfile(nextDifficulty);
+
+    if (state.difficulty === nextDifficulty) {
+      return;
+    }
+
+    const ratio = nextProfile.stageWaterRequirementMultiplier / currentProfile.stageWaterRequirementMultiplier;
+    state.difficulty = nextDifficulty;
+    applyDifficultyBackdrop();
+
+    for (const plant of state.plants) {
+      plant.stageWaterRequired *= ratio;
+      plant.stageWaterApplied *= ratio;
+    }
+
+    syncHud();
+  });
+
   UI.onSustainabilityAction(() => {
     enableSustainabilityMode();
     syncHud();
@@ -658,6 +776,9 @@
   UI.onRestart(() => {
     resetGame();
   });
+
+  state.difficulty = UI.getSelectedDifficulty();
+  applyDifficultyBackdrop();
 
   resetGame();
   requestAnimationFrame(tick);

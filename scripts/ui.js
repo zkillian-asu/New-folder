@@ -44,6 +44,7 @@ window.UI = (() => {
   };
 
   const restartButtonEl = document.getElementById("restartButton");
+  const difficultyInputEls = Array.from(document.querySelectorAll('input[name="difficulty"]'));
 
   let panelIndex = 0;
   let panelChangeHandler = null;
@@ -353,6 +354,21 @@ window.UI = (() => {
     restartButtonEl.addEventListener("click", handler);
   }
 
+  function getSelectedDifficulty() {
+    const selected = difficultyInputEls.find((input) => input.checked);
+    return selected ? selected.value : "normal";
+  }
+
+  function onDifficultyChange(handler) {
+    difficultyInputEls.forEach((input) => {
+      input.addEventListener("change", () => {
+        if (input.checked) {
+          handler(input.value);
+        }
+      });
+    });
+  }
+
   function getGardenRect() {
     return gardenEl.getBoundingClientRect();
   }
@@ -453,6 +469,8 @@ window.UI = (() => {
     onPanelChange,
     setPanel,
     onRestart,
+    getSelectedDifficulty,
+    onDifficultyChange,
     getGardenRect
   };
 })();
