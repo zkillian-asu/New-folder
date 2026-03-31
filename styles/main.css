@@ -100,7 +100,7 @@ body {
 }
 
 .hero-card {
-  background: linear-gradient(135deg, #ffe89b 0%, var(--brand-yellow) 52%, #ffbe00 100%);
+  background: var(--brand-yellow);
   position: relative;
   padding: 12px 52px 12px 12px;
   min-height: 120px;
