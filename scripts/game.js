@@ -31,7 +31,7 @@
     {
       id: "azurethistle",
       name: "Azure Thistle",
-      rarityWeight: 20,
+      rarityWeight: 4,
       growthRateMultiplier: 0.97,
       stemType: "spike",
       leafType: "spike",
@@ -59,7 +59,7 @@
     {
       id: "moonwell",
       name: "Moonwell Bloom",
-      rarityWeight: 4,
+      rarityWeight: 20,
       growthRateMultiplier: 0.88,
       stemType: "glass",
       leafType: "lance",
@@ -144,7 +144,7 @@
         `${imageBasePath}/Sprout Suncrest (stem).png`,
         `${imageBasePath}/sprout suncrest 1 (stem).png`
       ],
-      juvenile: [`${imageBasePath}/Suncrest juvenile.png`, `${imageBasePath}/Suncrest juvenile 1.png`]
+      juvenile: [`${imageBasePath}/Suncrest juvenile.png`, `${imageBasePath}/Suncrest Juvenile 1.png`]
     },
     coralfern: {
       seedling: [`${imageBasePath}/Seedling coralfern.png`],
@@ -179,7 +179,7 @@
         `${imageBasePath}/sprout moonwell (stem).png`,
         `${imageBasePath}/Sprout Moonwell 1 (stem).png`
       ],
-      juvenile: [`${imageBasePath}/Juvenile Moonwell.png`, `${imageBasePath}/Moonwell juvenile 1.png`]
+      juvenile: [`${imageBasePath}/Juvenile Moonwell.png`, `${imageBasePath}/Moonwell Juvenile 1.png`]
     }
   };
 
